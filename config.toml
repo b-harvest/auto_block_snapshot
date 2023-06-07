@@ -1,0 +1,9 @@
+[fullnode]
+path = "/path/to/fullnode"
+data_path = "/.gaiad/data"
+chain_name =""
+[pruner]
+path = "/path/to/cosmprund"
+[aws]
+region = "us-west-2"
+bucket = "yourBucketName"
