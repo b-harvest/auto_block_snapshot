@@ -1,14 +1,16 @@
 package aws
 
 import (
+	"context"
 	"os"
 	"time"
 
 	"auto_block_snapshot/pkg/config"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	aws_config "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/rs/zerolog/log"
 )
 
@@ -22,26 +24,28 @@ func NewS3(cfg *config.Config) *S3 {
 
 func (s *S3) Upload() {
 	// Step 7: Upload to AWS S3
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(s.cfg.Aws.Region),
-	})
+	awsCfg, err := aws_config.LoadDefaultConfig(context.Background(), aws_config.WithRegion(s.cfg.Aws.Region))
 	if err != nil {
-		log.Error().Err(err).Msg("An error occurred while creating a new session")
+		log.Error().Err(err).Msg("unable to load SDK config")
 	}
-	file, err := os.Open("data.tar.gz")
+
+	client := s3.NewFromConfig(awsCfg)
+
+	f, err := os.Open("data.tar.gz")
 	if err != nil {
-		log.Error().Err(err).Msg("An error occurred while Open a data.tar.gz")
+		log.Error().Err(err).Msg("failed to open file")
 	}
+	defer f.Close()
 	currentTime := time.Now()
 
 	filepath_name := currentTime.String() + s.cfg.FullNode.Chain_Name + "_" + "data.tar.gz"
-	uploader := s3manager.NewUploader(sess)
-	_, err = uploader.Upload(&s3manager.UploadInput{
+	uploader := manager.NewUploader(client)
+	_, err = uploader.Upload(context.Background(), &s3.PutObjectInput{
 		Bucket: aws.String(s.cfg.Aws.Bucket),
 		Key:    aws.String(filepath_name),
-		Body:   file,
+		Body:   f,
 	})
 	if err != nil {
-		log.Error().Err(err).Msg("An error occurred while Upload a data.tar.gz")
+		log.Error().Err(err).Msg("failed to upload file")
 	}
 }
