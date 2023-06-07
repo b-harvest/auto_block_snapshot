@@ -13,7 +13,7 @@ As a prerequisite, you'll need a Cosmos fulnode and a Cosmo pruner binary.
 https://github.com/binaryholdings/cosmprund
 https://github.com/cosmos/gaia 
 ```
-You can also set up AWS environment variables or credentials as shown below.
+and You can also set up AWS environment variables or credentials as shown below.
 
 ### Environment Variables:
 
@@ -32,15 +32,13 @@ aws_secret_access_key = your_secret_key
 region = your_aws_region
 ```
 
-
+### Build
 This project is written in Go. Make sure you have Go installed on your machine.
 
 ```
 git clone https://github.com/b-harvest/auto_block_snapshot.git
 cd auto_block_snapshot
 go build .
-./auto_block_snapshot
-or
 ./auto_block_snapshot -c /path/to/config.toml
 ```
 
